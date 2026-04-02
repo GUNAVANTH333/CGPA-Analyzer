@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { FiUser, FiMail, FiBook, FiEdit2, FiSave, FiX, FiLock, FiChevronDown, FiSearch } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from '../../config/axios';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -22,9 +23,8 @@ const Profile = () => {
   // Fetch colleges list when editing starts
   useEffect(() => {
     if (isEditing && colleges.length === 0) {
-      fetch('/api/colleges')
-        .then(r => r.json())
-        .then(d => setColleges(d.colleges || []))
+      axios.get('/api/colleges')
+        .then(r => setColleges(r.data.colleges || []))
         .catch(() => {});
     }
   }, [isEditing]);
@@ -75,24 +75,13 @@ const Profile = () => {
         body.collegeId = formData.collegeId;
       }
 
-      const response = await fetch('/api/users/me', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(body),
-      });
+      const response = await axios.patch('/api/users/me', body);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Failed to update profile.');
-      } else {
-        updateUser(data);
-        setSuccess('Profile updated successfully!');
-        setIsEditing(false);
-      }
-    } catch {
-      setError('Network error. Please try again.');
+      updateUser(response.data);
+      setSuccess('Profile updated successfully!');
+      setIsEditing(false);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Network error. Please try again.');
     } finally {
       setSaving(false);
     }
