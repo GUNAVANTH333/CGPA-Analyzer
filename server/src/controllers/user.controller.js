@@ -42,6 +42,10 @@ export const updateUser = async (req, res) => {
         email: true,
         collegeId: true,
         college: { select: { id: true, name: true } },
+        profileCompleted: true,
+        bio: true,
+        university: true,
+        graduationYear: true,
       },
     });
 
@@ -50,6 +54,10 @@ export const updateUser = async (req, res) => {
       email: updated.email,
       collegeId: updated.collegeId ? updated.collegeId.toString() : null,
       college: updated.college ? { id: updated.college.id.toString(), name: updated.college.name } : null,
+      profileCompleted: updated.profileCompleted,
+      bio: updated.bio,
+      university: updated.university,
+      graduationYear: updated.graduationYear,
     });
   } catch (err) {
     console.error("Error updating user:", err.message);
@@ -123,7 +131,16 @@ export const updateUserCollege = async (req, res) => {
     const updated = await prisma.user.update({
       where: { email },
       data: { collegeId: BigInt(collegeId) },
-      select: { username: true, email: true, collegeId: true, college: { select: { id: true, name: true } } },
+      select: { 
+        username: true, 
+        email: true, 
+        collegeId: true, 
+        college: { select: { id: true, name: true } },
+        profileCompleted: true,
+        bio: true,
+        university: true,
+        graduationYear: true,
+      },
     });
 
     const formatted = {
@@ -131,6 +148,10 @@ export const updateUserCollege = async (req, res) => {
       email: updated.email,
       collegeId: updated.collegeId ? updated.collegeId.toString() : null,
       college: updated.college ? { id: updated.college.id.toString(), name: updated.college.name } : null,
+      profileCompleted: updated.profileCompleted,
+      bio: updated.bio,
+      university: updated.university,
+      graduationYear: updated.graduationYear,
     };
 
     return res.json({ user: formatted });
